@@ -1,0 +1,116 @@
+{
+  "name": "puck-adhoc-chat",
+  "displayName": "puck-adhoc-chat",
+  "description": "Ad Hoc Chat functionality with custom delimiters",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.78.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Puck Ad-hoc CHat Settings",
+      "properties": {
+        "puck.adhocChat.apikey": {
+          "type": "password",
+          "default": "sk-",
+          "description": "API key for the OpenAI GPT service."
+        },
+        "puck.adhocChat.temperature": {
+          "type": "number",
+          "default": 0.7,
+          "description": "Default temperature to use in queries"
+        },
+        "puck.adhocChat.maxTokens": {
+          "type": "number",
+          "default": 2048,
+          "description": "Default max tokens to use in queries"
+        },
+        "puck.adhocChat.prompts": {
+          "type": "array",
+          "default": [],
+          "description": "List of AI prompts"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "puck.adhocChat.setOpenAIKey",
+        "title": "Set OpenAI Key"
+      },
+      {
+        "command": "puck.adhocChat.adhocChat",
+        "title": "Adhoc Chat"
+      },
+      {
+        "command": "puck.adhocChat.insertSystemTag",
+        "title": "Insert 🌐"
+      },
+      {
+        "command": "puck.adhocChat.insertUserTag",
+        "title": "Insert 👤"
+      },
+      {
+        "command": "puck.adhocChat.insertAssistantTag",
+        "title": "Insert 🤖"
+      },
+      {
+        "command": "puck.adhocChat.submitChat",
+        "title": "Submit Chat"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "puck.adhocChat.insertSystemTag",
+          "group": "1_insert",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "puck.adhocChat.insertUserTag",
+          "group": "1_insert",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "puck.adhocChat.insertAssistantTag",
+          "group": "1_insert",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "puck.adhocChat.submitChat",
+          "group": "1_insert",
+          "when": "editorTextFocus"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^16.18.31",
+    "@types/vscode": "^1.78.0",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "@vscode/test-electron": "^2.3.0",
+    "eslint": "^8.36.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "ohm-js": "^17.1.0"
+  }
+}
