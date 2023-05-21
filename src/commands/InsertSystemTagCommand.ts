@@ -3,7 +3,7 @@ import { Command } from "../utils/Command";
 
 // all commands are a subclass of Commandexport default 
 export default class InsertSystemTagCommand extends Command {
-    systemDelimiter = "👤 ";
+    systemDelimiter = "🌐 ";
     constructor(commandId: string, title: string, context: vscode.ExtensionContext) {
         super(commandId, title, context);
     }
@@ -13,12 +13,11 @@ export default class InsertSystemTagCommand extends Command {
         if (!editor) {
             return;
         }
-        // get the current selection
-        const selection = editor.selection;
-        const text = editor.document.getText(selection);
-        // insert the assistant tag
-        editor.edit((editBuilder) => {
-            editBuilder.replace(selection, `${this.systemDelimiter}${text}`);
+        // get the current cursor location
+        const position = editor.selection.active;
+        // insert the assistant delimiter
+        await editor.edit((editBuilder) => {
+            editBuilder.insert(position, this.systemDelimiter);
         });
     }
 }

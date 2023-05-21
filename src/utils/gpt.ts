@@ -24,6 +24,16 @@ const persomDelimiter = "👤";
 const assistantDelimiter = "🤖";
 const systemDelimiter = "🌐";
 
+function saveMessages(messages: adhocChatMessage[]) {
+    const config = vscode.workspace.getConfiguration('puck.adhocChat');
+    config.update('messages', messages);
+}
+
+export function loadMessages(): adhocChatMessage[] {
+    const config = vscode.workspace.getConfiguration('puck.adhocChat');
+    return config.get('messages') || [];
+}
+
 export async function sendQuery(query: adhocChatConversation): Promise<string> {
 
     // get the api key from settings
@@ -42,7 +52,9 @@ export async function sendQuery(query: adhocChatConversation): Promise<string> {
         );
         if (response.data && response.data.choices && response.data.choices.length > 0) {
             log(`Chat completion: ${response.data.choices[0].message.content}`);
-            return response.data.choices[0].message.content;
+            const res = response.data.choices[0].message.content;
+            saveMessages([...query.messages, { role: 'assistant', content: response }] as any);
+            return res;
         } else {
             // we show an error notification if the response is empt
             throw new Error('No completion found');

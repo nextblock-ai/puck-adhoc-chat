@@ -13,12 +13,11 @@ export default class InsertUserTagCommand extends Command {
         if (!editor) {
             return;
         }
-        // get the current selection
-        const selection = editor.selection;
-        const text = editor.document.getText(selection);
-        // insert the assistant tag
-        editor.edit((editBuilder) => {
-            editBuilder.replace(selection, `${this.userDelimiter}${text}`);
+        // get the current cursor location
+        const position = editor.selection.active;
+        // insert the assistant delimiter
+        await editor.edit((editBuilder) => {
+            editBuilder.insert(position, this.userDelimiter);
         });
     }
 }
