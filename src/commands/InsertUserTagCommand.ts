@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Command } from "../utils/Command";
+import { Command } from "./Command";
 
 // all commands are a subclass of Commandexport default 
 export default class InsertUserTagCommand extends Command {

@@ -59,7 +59,7 @@ export class SimpleTextEditorTerminal implements vscode.Pseudoterminal {
 
     public conversationSettings = {
         model: 'gpt-4',
-        temperature: 0.7,
+        temperature: 0.9,
         max_tokens: 2048,
         top_p: 1,
         messages: []
@@ -91,9 +91,10 @@ export class SimpleTextEditorTerminal implements vscode.Pseudoterminal {
 
     open(initialDimensions: vscode.TerminalDimensions): void {
         this._dimensions = initialDimensions;
-        this._currentPrompt =
-            vscode.workspace.getConfiguration().get("currentadhocChatPrompt") ||
-            this._currentPrompt;
+        const adhocPrompt = vscode.workspace.getConfiguration().get("puck.adhocChat.adhocPrompt") as string;
+        this._currentPrompt = adhocPrompt || this._currentPrompt
+ 
+            
         this.renderText();
     }
 

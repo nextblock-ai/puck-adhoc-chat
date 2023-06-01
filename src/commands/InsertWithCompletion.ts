@@ -5,7 +5,7 @@ import { sendQuery } from "../utils/core";
 // This command implememnts a sidebar that shows the query history. we implement the view as a webviewview, 
 // which is a webview that is embedded in the sidebar. The webview is implemented below.
 
-export default class ReplaceWithCompletionView extends Command {
+export default class InsertWithCompletionView extends Command {
     constructor(commandId: string, title: string, context: vscode.ExtensionContext) {
         super(commandId, title, context);
     }
@@ -40,7 +40,7 @@ export default class ReplaceWithCompletionView extends Command {
         } as any);
         if (!results) { return; }
         await editor.edit((editBuilder) => {
-            editBuilder.replace(selection, results);
+            editBuilder.insert(selection.start, results);
         });
     }
 }

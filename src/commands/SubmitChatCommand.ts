@@ -3,17 +3,33 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode";
-import { Command } from "../utils/Command";
-import { sendChatQuery, sendQuery } from "../utils/gpt";
+import { Command } from "./Command";
 import { DocumentManager } from "../managers/DocumentManager";
 import { ConversationsManager } from "../managers/ConversationsManager";
 import { PromptsManager } from "../managers/PromptsManager";
+import { sendQuery } from "../utils/core";
 
-const personDelimiter = "👤";
-const assistantDelimiter = "🤖";
-const systemDelimiter = "🌐";
+// get the delimiters from the settings
+const personDelimiter = vscode.workspace.getConfiguration().get("puck.adhocChat.systemDelimiter") as string;
+const assistantDelimiter = vscode.workspace.getConfiguration().get("puck.adhocChat.assistantDelimiter") as string;
+const systemDelimiter = vscode.workspace.getConfiguration().get("puck.adhocChat.systemDelimiter") as string;
 
-function getRoleEmoji(role: string) {
+export interface adhocChatMessage {
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+}
+export interface adhocChatConversation {
+    model: string;
+    messages: adhocChatMessage[];
+    max_tokens?: number;
+    top_p?: number;
+    temperature?: number;
+    stream?: boolean;
+    apikey?: string;
+}
+
+// 
+function getDelimiter(role: string) {
     switch (role) {
         case "user":
             return personDelimiter;
@@ -35,7 +51,11 @@ export default class SubmitChatCommand extends Command {
     conversationManager: ConversationsManager;
     promptManager: PromptsManager;
 
-    constructor(commandId: string, title: string, context: vscode.ExtensionContext) {
+    constructor(
+        commandId: string, 
+        title: string, 
+        context: vscode.ExtensionContext
+    ) {
 
         // call the parent constructor
         super(`${org}.${commandId}`, title, context);
@@ -90,13 +110,61 @@ export default class SubmitChatCommand extends Command {
             // add the response to the editor
             const msg =  outputMessages[outputMessages.length -1 ];
     
-            const outputMessagesString = `${getRoleEmoji(msg.role)} ${msg.content}`;
+            const outputMessagesString = `${getDelimiter(msg.role)} ${msg.content}`;
     
             await this.documentManager.insertIntoDocument(
                 `${outputMessagesString}\n`
             );
         }
     }
+}
+
+export async function sendChatQuery(messages: any[], prompt: string, inputText?: string): Promise<adhocChatMessage[]> {
+
+    const conversation = {
+        messages: [] as any[],
+        model: "gpt-4",
+        temperature: 0.9,
+        max_tokens: 2048,
+    };
+
+    const addToMessages = (role: string, content: string) =>
+        conversation.messages.push({ role, content });
+    const updates = [];
+
+    // add the user message to the conversation object
+    if(inputText) {
+        addToMessages("user", inputText);
+    }
+
+    // add the existing messages to the conversation object
+    if (messages.length > 0) {
+        if (messages && messages.length > 0) {
+            conversation.messages = messages;
+            if(inputText) { addToMessages("user", inputText); }
+        }
+
+    } else {
+        addToMessages("system", prompt);
+    }
+    
+    conversation.messages = conversation.messages.map(c => ({
+        content: c.content,
+        role: c.role === getDelimiter("system") 
+            ? "system" : c.role === getDelimiter("user") 
+                ? "user" : c.role === getDelimiter("assistant") 
+                    ? "assistant" : c.role
+    }));
+
+    // send the query to the GPT API
+    const result = await sendQuery(conversation);
+
+    // add the response to the conversation object
+    addToMessages("assistant", result);
+
+    // return the conversation object
+    return conversation.messages;
+
 }
 
 export async function handleChatMessage(
@@ -134,7 +202,7 @@ export async function handleChatMessage(
         // add the response to the editor
         const msg =  outputMessages[outputMessages.length -1 ];
 
-        const outputMessagesString = `${getRoleEmoji(msg.role)} ${msg.content}`;
+        const outputMessagesString = `${getDelimiter(msg.role)} ${msg.content}`;
 
         await documentManager.insertIntoDocument(
             `${outputMessagesString}\n`

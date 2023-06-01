@@ -2,17 +2,21 @@
   "name": "puck-adhoc-chat",
   "displayName": "Puck Adhoc Chat",
   "description": "Ad-Hoc GPT-4 Chat in VS Code",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.78.0"
   },
   "icon": "media/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nextblock-ai/pick-adhoc-chat.git"
+    "url": "https://github.com/nextblock-ai/puck-adhoc-chat.git"
   },
+  "publisher": "NextBlock",
   "categories": [
     "Other"
+  ],
+  "extensionDependencies": [
+    "NextBlock.puck-core"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
@@ -20,21 +24,6 @@
     "configuration": {
       "title": "Puck Ad-hoc CHat Settings",
       "properties": {
-        "puck.adhocChat.apikey": {
-          "type": "password",
-          "default": "sk-",
-          "description": "API key for the OpenAI GPT service."
-        },
-        "puck.adhocChat.temperature": {
-          "type": "number",
-          "default": 1,
-          "description": "Default temperature to use in queries"
-        },
-        "puck.adhocChat.maxTokens": {
-          "type": "number",
-          "default": 2048,
-          "description": "Default max tokens to use in queries"
-        },
         "puck.adhocChat.prompts": {
           "type": "array",
           "default": [],
@@ -54,46 +43,59 @@
           "type": "string",
           "default": "🤖",
           "description": "The delimiter to use for assistant messages"
+        },
+        "puck.adhocChat.historyPath": {
+          "type": "string",
+          "default": "history.json",
+          "description": "The file path to use for saving history"
+        },
+        "puck.adhocChat.adhocPrompt": {
+          "type": "string",
+          "default": "You are a helpful assistant.",
+          "description": "The opening prompt to use for adhoc chat"
         }
       }
     },
     "commands": [
       {
-        "command": "puck.adhocChat.setOpenAIKey",
-        "title": "Set OpenAI Key"
-      },
-      {
         "command": "puck.adhocChat.adhocChat",
-        "title": "Adhoc Chat"
+        "title": "Puck - Adhoc Chat"
       },
       {
         "command": "puck.adhocChat.insertSystemTag",
-        "title": "Insert 🌐"
+        "title": "Puck - Insert 🌐"
       },
       {
         "command": "puck.adhocChat.insertUserTag",
-        "title": "Insert 👤"
+        "title": "Puck - Insert 👤"
       },
       {
         "command": "puck.adhocChat.insertAssistantTag",
-        "title": "Insert 🤖"
+        "title": "Puck - Insert 🤖"
       },
       {
         "command": "puck.adhocChat.submitChat",
-        "title": "Submit Chat"
+        "title": "Puck - Submit Chat"
       },
       {
         "command": "puck.adhocChat.query-history-sidebar-view.open",
-        "title": "Open Query History Sidebar"
+        "title": "Puck - Open Query History Sidebar"
       },
       {
         "command": "puck.adhocChat.query-history-sidebar-view.clear",
-        "title": "Clear Query History"
+        "title": "Puck - Clear Query History"
+      },
+      {
+        "command": "puck.adhocChat.insertWithCompletion",
+        "title": "Puck - Insert with Completion"
       },
       {
         "command": "puck.adhocChat.replaceWithCompletion",
-        "title": "Replace with Completion"
+        "title": "Puck - Replace with Completion"
       }
+    ],
+    "activationEvents": [
+      "onView:query-history-sidebar-view"
     ],
     "viewsContainers": {
       "activitybar": [
@@ -107,9 +109,10 @@
     "views": {
       "query-history-sidebar-view": [
         {
-          "id": "query-history-sidebar-view",
+          "id": "puck.adhocChat.query-history-sidebar-view",
           "name": "Query History",
-          "when": "view == query-history-sidebar-view"
+          "when": "view == query-history-sidebar-view",
+          "visible": true
         }
       ]
     },
@@ -132,6 +135,11 @@
         },
         {
           "command": "puck.adhocChat.submitChat",
+          "group": "1_insert",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "puck.adhocChat.insertWithCompletion",
           "group": "1_insert",
           "when": "editorTextFocus"
         },
